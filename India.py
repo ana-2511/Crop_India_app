@@ -4,7 +4,7 @@ import joblib
 import numpy as np
 
 # Load the crop data and the random forest model
-crop_data = pd.read_csv("E:\\farmoid\\new_Clean_India.csv")
+crop_data = pd.read_csv("new_Clean_India.csv")
 model = joblib.load("E:\\farmoid\\random_forest_model.pkl")
 scaler = joblib.load("E:\\farmoid\\scaler.pkl")  # Ensure to load the scaler if you used one during training
 
