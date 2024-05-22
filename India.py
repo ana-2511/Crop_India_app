@@ -5,8 +5,8 @@ import numpy as np
 
 # Load the crop data and the random forest model
 crop_data = pd.read_csv("new_Clean_India.csv")
-model = joblib.load("E:\\farmoid\\random_forest_model.pkl")
-scaler = joblib.load("E:\\farmoid\\scaler.pkl")  # Ensure to load the scaler if you used one during training
+model = joblib.load("random_forest_model.pkl")
+scaler = joblib.load("scaler.pkl")  # Ensure to load the scaler if you used one during training
 
 # Get the list of unique crops from the dataset
 crop_list = crop_data['Crop'].unique()
