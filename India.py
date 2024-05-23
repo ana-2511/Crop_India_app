@@ -66,16 +66,12 @@ def main():
             # Determine the correct unit for display
             if production_unit == "Tonnes" and area_unit == "Hectare":
                 unit = "Tonnes per Hectare"
-                display_yield_value = yield_value
             elif production_unit == "Quintal" and area_unit == "Acre":
                 unit = "Quintal per Acre"
-                # Convert Tonnes per Hectare to Quintal per Acre
-                display_yield_value = yield_value * (10 / 2.47105)
             else:
                 unit = "Unknown unit"
-                display_yield_value = yield_value
 
-            st.success(f'Calculated Yield: {display_yield_value:.2f} {unit}')
+            st.success(f'Calculated Yield: {yield_value:.2f} {unit}')
         else:
             st.error('Area must be greater than 0 to calculate yield.')
 
