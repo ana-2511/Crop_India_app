@@ -58,7 +58,7 @@ def main():
     if not st.session_state['username']:
 
         # Display an image
-        st.image("E:\\OIG1.jpeg", use_column_width=False, width=500)
+        st.image("OIG1.jpeg", use_column_width=False, width=500)
         st.header(t('Enter your username:'))
 
         username = st.text_input(t('Username'))
