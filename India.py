@@ -6,11 +6,12 @@ from googletrans import Translator
 
 # Load the crop data and the random forest model
 crop_data = pd.read_csv("new_Clean_India.csv")
-model = joblib.load("random.pkl.gz")
+model = joblib.load("random_forest.pkl.gz")
 scaler = joblib.load("scaler.pkl")
 
-# Get the list of unique crops from the dataset
+# Get the list of unique crops and states from the dataset
 crop_list = crop_data['Crop'].unique()
+state_list = crop_data['State_Name'].unique()
 
 # Initialize session state
 if 'username' not in st.session_state:
@@ -57,7 +58,7 @@ def main():
     if not st.session_state['username']:
 
         # Display an image
-        st.image("OIG1.jpeg", use_column_width=False, width=350)
+        st.image("E:\\OIG1.jpeg", use_column_width=False, width=500)
         st.header(t('Enter your username:'))
 
         username = st.text_input(t('Username'))
@@ -75,12 +76,15 @@ def main():
             st.session_state['username'] = ''
             st.experimental_rerun()
 
+        st.markdown("---")
+
         # Add dropdown for user to select crop name
+        st.header(t('Find the best location and other information of your selected crop'))
         st.header(t('🌱 Select Crop Name:'))
-        crop_name = st.selectbox(t('Crop Name'), crop_list)
+        crop_name = st.selectbox(t('Crop Name'), crop_list, key='crop_name_select')
 
         # Add a button to show the best locations for the crop
-        if st.button(t('Show Best Locations')):
+        if st.button(t('Show Best Location and Other Informations')):
             # Filter crop data based on user input
             filtered_crop_data = crop_data[crop_data['Crop'] == crop_name]
 
@@ -99,6 +103,74 @@ def main():
                 st.write(t(f"**Yield:** {best_location['Yield']} Tonnes per Hectare"))
             else:
                 st.warning(t(f'No data available for {crop_name}.'))
+        
+        st.markdown("---")
+
+        # Add dropdown for user to select state name
+        st.header(t('Find the best crop grown in your selected state'))
+        st.header(t('🌎 Select State Name:'))
+        state_name = st.selectbox(t('State Name'), state_list, key='state_name_select')
+
+        # Add a button to show the best crop grown in the state
+        if st.button(t('Show the Best Crop Grown in the State')):
+            # Filter crop data based on user input
+            filtered_state_data = crop_data[crop_data['State_Name'] == state_name]
+
+            # If there is data available for the selected state, display it
+            if not filtered_state_data.empty:
+                # Find the crop with the highest yield for the selected state
+                best_crop_state = filtered_state_data.loc[filtered_state_data['Yield'].idxmax()]
+
+                # Display information about the best crop grown in the state
+                st.subheader(t(f'Best Crop Grown in {state_name}:'))
+                st.write(t(f"**Crop:** {best_crop_state['Crop']}"))
+                st.write(t(f"**District:** {best_crop_state['District_Name']}"))
+                st.write(t(f"**Season:** {best_crop_state['Season']}"))
+                st.write(t(f"**Area:** {best_crop_state['Area']} Hectares"))
+                st.write(t(f"Production:** {best_crop_state['Production']} Tonnes"))
+                st.write(t(f"**Yield:** {best_crop_state['Yield']} Tonnes per Hectare"))
+                
+                # Find the year with the highest yield for the selected crop
+                best_year_state = filtered_state_data.loc[filtered_state_data['Yield'].idxmax(), 'Crop_Year']
+                st.write(t(f"**Best Year for Crop Yield:** {best_year_state}"))
+        st.markdown("---")
+
+        # Add dropdown for user to select crop name
+        st.header(t('Find the best district for growing your selected crop'))
+        st.header(t('🌱 Select Crop Name:'))
+        crop_name = st.selectbox(t('Crop Name'), crop_list, key='crop_name_select_state')
+
+        # Add dropdown for user to select state
+        st.header(t('🌎 Select State:'))
+        state_name = st.selectbox(t('State Name'), state_list, key='state_name_select_state')
+
+        # Add a button to show the best locations for the crop in the selected state
+        if st.button(t('Show Information About the Crop')):
+            # Filter crop data based on user input
+            filtered_crop_data = crop_data[(crop_data['Crop'] == crop_name) & (crop_data['State_Name'] == state_name)]
+
+            # If there is data available for the selected crop and state, display it
+            if not filtered_crop_data.empty:
+                # Find the location with the highest yield for the selected crop in the selected state
+                best_location = filtered_crop_data.loc[filtered_crop_data['Yield'].idxmax()]
+
+                # Display information about the best location for the crop
+                st.subheader(t(f'Best Location along with other Yield Information for {crop_name} in {state_name}:'))
+                st.write(t(f"**District:** {best_location['District_Name']}"))
+                st.write(t(f"**Season:** {best_location['Season']}"))
+                st.write(t(f"**Area:** {best_location['Area']} Hectares"))
+                st.write(t(f"**Production:** {best_location['Production']} Tonnes"))
+                st.write(t(f"**Yield:** {best_location['Yield']} Tonnes per Hectare"))
+
+                # Find the year with the highest yield for the selected crop in the selected state
+                best_year = filtered_crop_data.loc[filtered_crop_data['Yield'].idxmax(), 'Crop_Year']
+                st.write(t(f"**Best Year for Crop Yield:** {best_year}"))
+
+                # Find the month for the best yield
+                best_month = best_location['Months']
+                st.write(t(f"**Best Month:** {best_month}"))
+            else:
+                st.warning(t(f'No data available for {crop_name} in {state_name}.'))
 
         # Add a separator
         st.markdown("---")
