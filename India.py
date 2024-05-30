@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import joblib
 import numpy as np
+from googletrans import Translator
 
 # Load the crop data and the random forest model
 crop_data = pd.read_csv("new_Clean_India.csv")
@@ -11,69 +12,135 @@ scaler = joblib.load("scaler.pkl")
 # Get the list of unique crops from the dataset
 crop_list = crop_data['Crop'].unique()
 
+# Initialize session state
+if 'username' not in st.session_state:
+    st.session_state['username'] = ''
+
+if 'language' not in st.session_state:
+    st.session_state['language'] = 'en'
+
+# Initialize translator
+translator = Translator()
+
+# Define a function to translate text
+def translate_text(text, dest_language):
+    if dest_language == 'en':
+        return text
+    return translator.translate(text, dest=dest_language).text
+
 # Define the layout of your app
 def main():
-    st.title('Best Crop Locations and Yield Prediction App')
+    st.set_page_config(page_title="Best Crop Locations and Yield Prediction", page_icon="🌾", layout="wide")
+    
+    # Language selection
+    language = st.selectbox('Select Language', ['en', 'hi', 'kn', 'mr', 'ml', 'te', 'bn'])
+    st.session_state['language'] = language
+    
+    # Translate function with session state language
+    def t(text):
+        return translate_text(text, st.session_state['language'])
 
-    # Add dropdown for user to select crop name
-    st.header('Select Crop Name:')
-    crop_name = st.selectbox('Crop Name', crop_list)
+    st.title(t('🌾 Best Crop Locations and Yield Prediction App'))
 
-    # Add a button to show the best locations for the crop
-    if st.button('Show Best Locations'):
-        # Filter crop data based on user input
-        filtered_crop_data = crop_data[crop_data['Crop'] == crop_name]
+    # App description
+    st.markdown(t("""
+    ### Welcome to the Best Crop Locations and Yield Prediction App!
+    This app helps you find the best locations for growing various crops based on historical data. 
+    You can also calculate the yield of your crops by entering the production and area. 
+    Make informed decisions to maximize your agricultural productivity!
+    """))
+    
+    # Add a separator
+    st.markdown("---")
 
-        # If there is data available for the selected crop, display it
-        if not filtered_crop_data.empty:
-            # Find the location with the highest yield for the selected crop
-            best_location = filtered_crop_data.loc[filtered_crop_data['Yield'].idxmax()]
+    # Add a page for username input
+    if not st.session_state['username']:
 
-            # Display information about the best location for the crop
-            st.subheader(f'Best Location for {crop_name}:')
-            st.write(f"State: {best_location['State_Name']}")
-            st.write(f"District: {best_location['District_Name']}")
-            st.write(f"Season: {best_location['Season']}")
-            st.write(f"Area: {best_location['Area']} Hectares")
-            st.write(f"Production: {best_location['Production']} Tonnes")
-            st.write(f"Yield: {best_location['Yield']} Tonnes per Hectare")
-        else:
-            st.warning(f'No data available for {crop_name}.')
+        # Display an image
+        st.image("OIG1.jpeg", use_column_width=False, width=500)
+        st.header(t('Enter your username:'))
 
-    # Add input fields for user to enter production and area for yield calculation
-    st.header('Calculate Yield:')
-    production_calc = st.number_input('Production for Calculation', min_value=0.0)
-    production_unit = st.selectbox('Production Unit', ['Tonnes', 'Quintal'])
-    area_calc = st.number_input('Area for Calculation', min_value=0.0)
-    area_unit = st.selectbox('Area Unit', ['Hectare', 'Acre'])
-
-    # Add a button to calculate yield
-    if st.button('Calculate Yield'):
-        if area_calc > 0:
-            # Convert units to standard units (Hectares for area, Tonnes for production)
-            if area_unit == "Acre":
-                area_in_hectares = area_calc * 0.404686
+        username = st.text_input(t('Username'))
+        if st.button(t('Submit')):
+            if username:
+                st.session_state['username'] = username
+                st.experimental_rerun()
             else:
-                area_in_hectares = area_calc
+                st.warning(t('Please enter a username.'))
+    else:
+        st.subheader(t(f'Welcome, {st.session_state["username"]}!'))
+        
+        # Add a logout button
+        if st.button(t('Logout')):
+            st.session_state['username'] = ''
+            st.experimental_rerun()
 
-            if production_unit == "Quintal":
-                production_in_tonnes = production_calc * 0.1
+        # Add dropdown for user to select crop name
+        st.header(t('🌱 Select Crop Name:'))
+        crop_name = st.selectbox(t('Crop Name'), crop_list)
+
+        # Add a button to show the best locations for the crop
+        if st.button(t('Show Best Locations')):
+            # Filter crop data based on user input
+            filtered_crop_data = crop_data[crop_data['Crop'] == crop_name]
+
+            # If there is data available for the selected crop, display it
+            if not filtered_crop_data.empty:
+                # Find the location with the highest yield for the selected crop
+                best_location = filtered_crop_data.loc[filtered_crop_data['Yield'].idxmax()]
+
+                # Display information about the best location for the crop
+                st.subheader(t(f'Best Location for {crop_name}:'))
+                st.write(t(f"**State:** {best_location['State_Name']}"))
+                st.write(t(f"**District:** {best_location['District_Name']}"))
+                st.write(t(f"**Season:** {best_location['Season']}"))
+                st.write(t(f"**Area:** {best_location['Area']} Hectares"))
+                st.write(t(f"**Production:** {best_location['Production']} Tonnes"))
+                st.write(t(f"**Yield:** {best_location['Yield']} Tonnes per Hectare"))
             else:
-                production_in_tonnes = production_calc
+                st.warning(t(f'No data available for {crop_name}.'))
 
-            yield_value = production_in_tonnes / area_in_hectares
+        # Add a separator
+        st.markdown("---")
 
-            # Determine the correct unit for display
-            if production_unit == "Tonnes" and area_unit == "Hectare":
-                unit = "Tonnes per Hectare"
-            elif production_unit == "Quintal" and area_unit == "Acre":
-                unit = "Quintal per Acre"
+        # Add input fields for user to enter production and area for yield calculation
+        st.header(t('📏 Calculate Yield:'))
+        production_calc = st.number_input(t('Production for Calculation'), min_value=0.0)
+        production_unit = st.selectbox(t('Production Unit'), [t('Tonnes'), t('Quintal')])
+        area_calc = st.number_input(t('Area for Calculation'), min_value=0.0)
+        area_unit = st.selectbox(t('Area Unit'), [t('Hectare'), t('Acre')])
+
+        # Add a button to calculate yield
+        if st.button(t('Calculate Yield')):
+            if area_calc > 0:
+                # Convert units to standard units (Hectares for area, Tonnes for production)
+                if area_unit == t("Acre"):
+                    area_in_hectares = area_calc * 0.404686
+                else:
+                    area_in_hectares = area_calc
+
+                if production_unit == t("Quintal"):
+                    production_in_tonnes = production_calc * 0.1
+                else:
+                    production_in_tonnes = production_calc
+
+                yield_value = production_in_tonnes / area_in_hectares
+
+                # Determine the correct unit for display
+                if production_unit == t("Tonnes") and area_unit == t("Hectare"):
+                    unit = t("Tonnes per Hectare")
+                elif production_unit == t("Quintal") and area_unit == t("Acre"):
+                    unit = t("Quintal per Acre")
+                elif production_unit == t("Tonnes") and area_unit == t("Acre"):
+                    unit = t("Tonnes per Acre")
+                elif production_unit == t("Quintal") and area_unit == t("Hectare"):
+                    unit = t("Quintal per Hectare")
+                else:
+                    unit = t("Unknown Unit")
+
+                st.success(t(f'Calculated Yield: {yield_value:.2f} {unit}'))
             else:
-                unit = "Unknown unit"
-
-            st.success(f'Calculated Yield: {yield_value:.2f} {unit}')
-        else:
-            st.error('Area must be greater than 0 to calculate yield.')
+                st.error(t('Area must be greater than 0 to calculate yield.'))
 
 # Run the app
 if __name__ == '__main__':
