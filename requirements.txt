@@ -2,4 +2,5 @@ streamlit
 pandas
 numpy
 joblib
-scikit-learn  # if you are using any models from scikit-learn
+scikit-learn 
+googletrans==4.0.0-rc1
