@@ -11,7 +11,7 @@ def get_base64_image(image_path):
         return base64.b64encode(img_file.read()).decode()
 
 # Encode the image to base64
-image_path = "Agri.jpg"
+image_path = "FarmoidLogo.jpg"
 base64_image = get_base64_image(image_path)
 
 # Set page configuration
@@ -41,7 +41,7 @@ st.markdown(
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
     }}
     p, label {{
-        color: white;
+        color: Green;
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         font-weight: bold;
         font-size: 20px;
