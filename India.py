@@ -11,7 +11,7 @@ def get_base64_image(image_path):
         return base64.b64encode(img_file.read()).decode()
 
 # Encode the image to base64
-image_path = "FarmoidLogo.jpg"
+image_path = "bg.jpg"
 base64_image = get_base64_image(image_path)
 
 # Set page configuration
@@ -41,15 +41,15 @@ st.markdown(
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
     }}
     p, label {{
-        color: Green;
+        color: sea green;
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         font-weight: bold;
         font-size: 20px;
-
     }}
     </style>
     """, unsafe_allow_html=True
 )
+
 # Load the crop data and the random forest model
 crop_data = pd.read_csv("new_Clean_India.csv")
 model = joblib.load("random_forest.pkl.gz")
@@ -90,7 +90,7 @@ def main():
     # App description
     st.markdown(t("""
     ### Welcome to the Best Crop Locations and Yield Prediction App!
-    This app helps you find the best locations for growing various crops based on historical data across every states and districts of India. Either select CROP NAME and STATE NAME indiviually, or select both of them together to get a precise and more accurate location, this app is much user-friendly and easy-to-use.
+    This app helps you find the best locations for growing various crops based on historical data across every states and districts of India. Select your desired crop name, state name, and district name to see the result.
     You can also calculate the yield of your crops by entering the production and area. 
     Make informed decisions to maximize your agricultural productivity!
     """))
@@ -102,7 +102,7 @@ def main():
     if not st.session_state['username']:
 
         # Display an image
-        st.image("OIG1.jpeg", use_column_width=False, width=350)
+        st.image("FarmoidLogo.jpg", use_column_width=False, width=350)
         st.header(t('Enter your username:'))
 
         username = st.text_input(t('Username'))
@@ -123,7 +123,7 @@ def main():
         st.markdown("---")
 
         # Add dropdown for user to select crop name
-        st.header(t('Find the best district for growing your selected crop'))
+        st.header(t('!Find out much more about your desired crop!'))
         st.header(t('🌱 Select Crop Name:'))
         crop_name = st.selectbox(t('Crop Name'), crop_list, key='crop_name_select_state')
 
@@ -131,25 +131,32 @@ def main():
         st.header(t('🌎 Select State:'))
         state_name = st.selectbox(t('State Name'), state_list, key='state_name_select_state')
 
-        # Add a button to show the best locations for the crop in the selected state
+        # Filter the districts based on the selected state
+        district_list = crop_data[crop_data['State_Name'] == state_name]['District_Name'].unique()
+
+        # Add dropdown for user to select district
+        st.header(t('🏘️ Select District:'))
+        district_name = st.selectbox(t('District Name'), district_list, key='district_name_select_state')
+
+        # Add a button to show the best locations for the crop in the selected state and district
         if st.button(t('Show Information About the Crop')):
             # Filter crop data based on user input
-            filtered_crop_data = crop_data[(crop_data['Crop'] == crop_name) & (crop_data['State_Name'] == state_name)]
+            filtered_crop_data = crop_data[(crop_data['Crop'] == crop_name) & (crop_data['State_Name'] == state_name) & (crop_data['District_Name'] == district_name)]
 
-            # If there is data available for the selected crop and state, display it
+            # If there is data available for the selected crop, state, and district, display it
             if not filtered_crop_data.empty:
-                # Find the location with the highest yield for the selected crop in the selected state
+                # Find the location with the highest yield for the selected crop in the selected state and district
                 best_location = filtered_crop_data.loc[filtered_crop_data['Yield'].idxmax()]
 
                 # Display information about the best location for the crop
-                st.subheader(t(f'Best Location along with other Yield Information for {crop_name} in {state_name}:'))
+                st.subheader(t(f'🌾Get to know more about {crop_name} in {district_name}, {state_name}🌾'))
                 st.write(t(f"**District:** {best_location['District_Name']}"))
                 st.write(t(f"**Season:** {best_location['Season']}"))
                 st.write(t(f"**Area:** {best_location['Area']} Hectares"))
                 st.write(t(f"**Production:** {best_location['Production']} Tonnes"))
                 st.write(t(f"**Yield:** {best_location['Yield']} Tonnes per Hectare"))
 
-                # Find the year with the highest yield for the selected crop in the selected state
+                # Find the year with the highest yield for the selected crop in the selected state and district
                 best_year = filtered_crop_data.loc[filtered_crop_data['Yield'].idxmax(), 'Crop_Year']
                 st.write(t(f"**Best Year for Crop Yield:** {best_year}"))
 
@@ -157,7 +164,7 @@ def main():
                 best_month = best_location['Months']
                 st.write(t(f"**Best Month:** {best_month}"))
             else:
-                st.warning(t(f'No data available for {crop_name} in {state_name}.'))
+                st.warning(t(f'No data available for {crop_name} in {district_name}, {state_name}.'))
 
         # Add a separator
         st.markdown("---")
