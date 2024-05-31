@@ -3,7 +3,53 @@ import pandas as pd
 import joblib
 import numpy as np
 from googletrans import Translator
+import base64
 
+# Function to encode image to base64
+def get_base64_image(image_path):
+    with open(image_path, 'rb') as img_file:
+        return base64.b64encode(img_file.read()).decode()
+
+# Encode the image to base64
+image_path = "Agri.jpg"
+base64_image = get_base64_image(image_path)
+
+# Set page configuration
+st.set_page_config(page_title="Best Crop Locations and Yield Prediction", page_icon="🌾", layout="wide")
+
+st.markdown(
+    f"""
+    <style>
+    .main {{
+        background-image: url("data:image/jpg;base64,{base64_image}");
+        background-size: cover;
+        padding: 20px;
+    }}
+    .stButton button {{
+        background-color: #4CAF50;
+        color: white;
+    }}
+    .stTextInput input {{
+        border-radius: 5px;
+    }}
+    .stSelectbox select {{
+        background-color: #f0f2f6;
+        border-radius: 5px;
+    }}
+    h1, h2, h3, h4, h5, h6 {{
+        color: #00008B;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }}
+    p, label {{
+        color: purple;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        font-weight: bold;
+        font-size: 20px;
+
+    }}
+    </style>
+    """, unsafe_allow_html=True
+)
 # Load the crop data and the random forest model
 crop_data = pd.read_csv("new_Clean_India.csv")
 model = joblib.load("random_forest.pkl.gz")
@@ -31,7 +77,6 @@ def translate_text(text, dest_language):
 
 # Define the layout of your app
 def main():
-    st.set_page_config(page_title="Best Crop Locations and Yield Prediction", page_icon="🌾", layout="wide")
     
     # Language selection
     language = st.selectbox('Select Language', ['en', 'hi', 'kn', 'mr', 'ml', 'te', 'bn'])
@@ -40,13 +85,12 @@ def main():
     # Translate function with session state language
     def t(text):
         return translate_text(text, st.session_state['language'])
-
     st.title(t('🌾 Best Crop Locations and Yield Prediction App'))
 
     # App description
     st.markdown(t("""
     ### Welcome to the Best Crop Locations and Yield Prediction App!
-    This app helps you find the best locations for growing various crops based on historical data. 
+    This app helps you find the best locations for growing various crops based on historical data across every states and districts of India. Either select CROP NAME and STATE NAME indiviually, or select both of them together to get a precise and more accurate location, this app is much user-friendly and easy-to-use.
     You can also calculate the yield of your crops by entering the production and area. 
     Make informed decisions to maximize your agricultural productivity!
     """))
@@ -130,7 +174,7 @@ def main():
                 st.write(t(f"Production:** {best_crop_state['Production']} Tonnes"))
                 st.write(t(f"**Yield:** {best_crop_state['Yield']} Tonnes per Hectare"))
                 
-                # Find the year with the highest yield for the selected crop
+                                # Find the year with the highest yield for the selected crop
                 best_year_state = filtered_state_data.loc[filtered_state_data['Yield'].idxmax(), 'Crop_Year']
                 st.write(t(f"**Best Year for Crop Yield:** {best_year_state}"))
         st.markdown("---")
