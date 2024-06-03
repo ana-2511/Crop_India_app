@@ -50,9 +50,9 @@ st.markdown(
 )
 
 # Load the crop data and the random forest model
-crop_data = pd.read_csv("E:\\farmoid\\new_Clean_India.csv")
-model = joblib.load("E:\\farmoid\\random_forest.pkl.gz")
-scaler = joblib.load("E:\\farmoid\\scaler.pkl")
+crop_data = pd.read_csv("new_Clean_India.csv")
+model = joblib.load("random_forest.pkl.gz")
+scaler = joblib.load("scaler.pkl")
 
 # Get the list of unique crops and states from the dataset
 crop_list = crop_data['Crop'].unique()
@@ -101,7 +101,7 @@ def main():
     if not st.session_state['username']:
 
         # Display an image
-        st.image("E:\\FarmoidLogo.jpg", use_column_width=False, width=350)
+        st.image("FarmoidLogo.jpg", use_column_width=False, width=350)
         st.header(t('Enter your username:'))
 
         username = st.text_input(t('Username'))
