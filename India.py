@@ -91,7 +91,6 @@ def main():
     if not st.session_state['username']:
 
         # Display an image
-        st.image("FarmoidLogo.jpg", use_column_width=False, width=350)
         st.header(t('Enter your username:'))
 
         username = st.text_input(t('Username'))
