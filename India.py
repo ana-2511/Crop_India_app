@@ -5,10 +5,7 @@ import numpy as np
 from googletrans import Translator
 import base64
 
-# Function to encode image to base64
-def get_base64_image(image_path):
-    with open(image_path, 'rb') as img_file:
-        return base64.b64encode(img_file.read()).decode()
+
 
 
 # Set page configuration
@@ -18,9 +15,7 @@ st.markdown(
     f"""
     <style>
     .main {{
-        background-image: url("data:image/jpg;base64,{base64_image}");
-        background-size: cover;
-        padding: 20px;
+
     }}
     .stButton button {{
         background-color: #4CAF50;
