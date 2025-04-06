@@ -10,9 +10,6 @@ def get_base64_image(image_path):
     with open(image_path, 'rb') as img_file:
         return base64.b64encode(img_file.read()).decode()
 
-# Encode the image to base64
-image_path = "bg.jpg"
-base64_image = get_base64_image(image_path)
 
 # Set page configuration
 st.set_page_config(page_title="Best Crop Locations and Yield Prediction", page_icon="🌾", layout="wide")
