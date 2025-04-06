@@ -3,9 +3,6 @@ import pandas as pd
 import joblib
 import numpy as np
 from googletrans import Translator
-import base64
-
-
 
 
 # Set page configuration
